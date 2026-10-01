@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "skimmer",
+  "compatibility_date": "2026-09-26",
+  // nodejs_compat is required by the TanStack Start server runtime; application
+  // code uses Web APIs only. enable_request_signal lets a closed client connection abort the analysis.
+  "compatibility_flags": ["nodejs_compat", "enable_request_signal"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true,
+  },
+  "upload_source_maps": true,
+  "vars": {
+    "CLOUDFLARE_ACCOUNT_ID": "",
+    "AI_GATEWAY_ID": "skimmer",
+  },
+  "ratelimits": [
+    {
+      "name": "ANALYSIS_RATE_LIMITER",
+      "namespace_id": "4101",
+      "simple": {
+        "limit": 3,
+        "period": 60,
+      },
+    },
+  ],
+  // Secrets (wrangler secret put; locally the git-ignored .env file): GITHUB_API_TOKEN, CF_AIG_TOKEN
+}

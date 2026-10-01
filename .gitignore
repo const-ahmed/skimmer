@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+.output/
+.nitro/
+.vinxi/
+*.tsbuildinfo
+
+# TanStack Start / Vite caches
+.tanstack/
+.vite/
+__unconfig*
+
+# Cloudflare Wrangler local state
+.wrangler/
+
+# Local secrets and environment files
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+*.local
+!.env.example
+!.dev.vars.example
+
+# Test and coverage output
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+*.swp
+
+# Local screenshots and scratch files
+screenshots/
+scratch/
+tmp/

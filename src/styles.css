@@ -1,0 +1,179 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+/* React Flow in the base layer, so Tailwind utilities on custom nodes win. */
+@import "@xyflow/react/dist/style.css" layer(base);
+
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-600.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/pt-serif/latin-700.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #efeee9;
+  --border: #e2e0da;
+  --border-strong: #c9c6be;
+  --text: #1a1a19;
+  --text-muted: #63625c;
+  /* White text on the accent: 5.61:1. */
+  --accent: #3f7254;
+  --accent-soft: rgba(63, 114, 84, 0.12);
+  --on-accent: #ffffff;
+  --external: #1c6ca8;
+  --edge: #a29f96;
+  --neutral-dot: #6b6a64;
+  --canvas-dot: #dedcd5;
+  --danger: #b42318;
+
+  --radius: 0.375rem;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e0f12;
+  --surface: #15171b;
+  --surface-2: #21252b;
+  --border: #272b31;
+  --border-strong: #343941;
+  --text: #e9ebee;
+  --text-muted: #99a1ab;
+  /* Dark text on it: 9.08:1. */
+  --accent: #86bf9c;
+  --accent-soft: rgba(134, 191, 156, 0.14);
+  --on-accent: #0e0f12;
+  --external: #6fb2f0;
+  --edge: #5f6873;
+  --neutral-dot: #9aa3ad;
+  --canvas-dot: #23282f;
+  --danger: #f97066;
+
+  color-scheme: dark;
+}
+
+/* shadcn's "accent" is a neutral hover colour, so Skimmer's accent is exposed as "brand". */
+:root,
+.dark {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--text);
+  --primary-foreground: var(--bg);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --destructive: var(--danger);
+  --input: var(--border-strong);
+  --ring: var(--accent);
+}
+
+@theme inline {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "PT Serif", ui-serif, Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--surface-2);
+  --color-accent-foreground: var(--text);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--accent);
+  --color-brand-soft: var(--accent-soft);
+  --color-brand-foreground: var(--on-accent);
+  --color-external: var(--external);
+  --color-neutral-dot: var(--neutral-dot);
+  --color-canvas-dot: var(--canvas-dot);
+
+  --animate-skim: skim 2.4s ease-in-out infinite;
+  @keyframes skim {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(2.3rem);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  /* Tailwind's preflight resets buttons to the default cursor. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+  body {
+    @apply bg-background font-sans text-foreground;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+.react-flow {
+  --xy-background-color: var(--bg);
+  --xy-background-pattern-color: var(--canvas-dot);
+  --xy-edge-stroke: var(--edge);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-edge-stroke-width: 1.25;
+  --xy-edge-label-background-color: var(--bg);
+  --xy-edge-label-color: var(--text-muted);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-2);
+  --xy-controls-button-color: var(--text);
+  --xy-controls-button-color-hover: var(--text);
+  --xy-controls-button-border-color: var(--border);
+  --xy-controls-box-shadow: none;
+  --xy-attribution-background-color: transparent;
+}
+.react-flow__controls {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+/* Touch drags scroll the page through the diagram until the reader zooms in. */
+[data-scroll-through] .react-flow__pane {
+  touch-action: pan-y;
+}
+.react-flow__attribution a {
+  color: var(--text-muted);
+}
