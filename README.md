@@ -61,8 +61,6 @@ npm run check:worker   # build, then wrangler deploy --dry-run
 - Requests are rate-limited per IP address. Configure a rate limit on the AI Gateway as well, as a global spending guard.
 - Deploying requires the Cloudflare Workers Paid plan, because one analysis makes more than 50 subrequests.
 
-More detail on the analysis pipeline, evidence rules and limits is in [docs/pipeline.md](docs/pipeline.md).
-
 ## Licence and attribution
 
 Third-party code and its licences are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

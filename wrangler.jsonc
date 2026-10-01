@@ -11,7 +11,7 @@
   },
   "upload_source_maps": true,
   "vars": {
-    "CLOUDFLARE_ACCOUNT_ID": "",
+    "CLOUDFLARE_ACCOUNT_ID": "9713fe65eac43ed94a53a3cc446579e5",
     "AI_GATEWAY_ID": "skimmer",
   },
   "ratelimits": [
