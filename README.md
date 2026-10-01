@@ -44,10 +44,9 @@ npm run dev
 
 The app runs at http://localhost:3000.
 
-## Build and test
+## Build
 
 ```sh
-npm test               # unit tests (GitHub and the model are faked)
 npm run typecheck
 npm run build
 npm run check:worker   # build, then wrangler deploy --dry-run
