@@ -58,7 +58,7 @@ export const MODEL_LIMITS = {
 } as const
 
 export const HTTP_LIMITS = {
-  maxBodyBytes: 2_048,
+  maxBodyBytes: 4_096,
   // Includes both model calls.
   analysisDeadlineMs: 360_000,
 } as const

@@ -4,6 +4,8 @@ import { MAX_REPOSITORY_INPUT_LENGTH } from '@/shared/github-url'
 
 export const analyseRequestSchema = z.strictObject({
   repositoryUrl: z.string().trim().min(1).max(MAX_REPOSITORY_INPUT_LENGTH),
+  // Turnstile tokens are at most 2048 characters. Optional here so a missing one gets its own error.
+  turnstileToken: z.string().max(2048).optional(),
 })
 
 export type AnalyseRequest = z.infer<typeof analyseRequestSchema>

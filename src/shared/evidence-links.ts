@@ -17,7 +17,6 @@ export function githubBlobUrl(params: RepositoryAt & { path: string; startLine?:
   return end === params.startLine ? `${url}#L${params.startLine}` : `${url}#L${params.startLine}-L${end}`
 }
 
-/** Commit-pinned GitHub link to a directory. */
 export function githubTreeUrl(params: RepositoryAt & { path: string }): string {
   return base(params, 'tree', params.path)
 }

@@ -6,6 +6,7 @@ import { analyseRepository } from '@/server/analysis/run'
 import { createGitHubClient } from '@/server/github/client'
 import { checkRateLimit, guardAnalyseRequest } from './guard'
 import { createSseResponse } from './sse'
+import { verifyTurnstile } from './turnstile'
 
 export interface AnalyseEnv {
   ANALYSIS_RATE_LIMITER?: RateLimit
@@ -13,6 +14,7 @@ export interface AnalyseEnv {
   CF_AIG_TOKEN?: string
   CLOUDFLARE_ACCOUNT_ID?: string
   AI_GATEWAY_ID?: string
+  TURNSTILE_SECRET?: string
 }
 
 function jsonError(status: number, code: string, message: string): Response {
@@ -20,14 +22,23 @@ function jsonError(status: number, code: string, message: string): Response {
 }
 
 /**
- * POST /api/analyse. Guards run before any GitHub or model work. The response
- * is an SSE stream of `progress` events ending in one `result` or `error`.
+ * POST /api/analyse. Guards, the rate limit and Turnstile all run before any
+ * GitHub or model work. The response is an SSE stream of `progress` events
+ * ending in one `result` or `error`.
  */
 export async function handleAnalyseRequest(request: Request, env: AnalyseEnv): Promise<Response> {
   const guard = await guardAnalyseRequest(request)
   if (!guard.ok) return jsonError(guard.status, guard.code, guard.message)
+  const token = guard.body.turnstileToken?.trim()
+  if (!token) return jsonError(403, 'TURNSTILE_REQUIRED', 'Complete the verification check, then try again.')
   if (!(await checkRateLimit(env.ANALYSIS_RATE_LIMITER, request)))
     return jsonError(429, 'RATE_LIMITED', 'Too many analyses from this address. Please wait a minute.')
+  const verification = await verifyTurnstile({
+    secret: env.TURNSTILE_SECRET,
+    token,
+    remoteIp: request.headers.get('cf-connecting-ip'),
+  })
+  if (!verification.ok) return jsonError(verification.status, verification.code, verification.message)
 
   let model
   try {

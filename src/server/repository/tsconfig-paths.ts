@@ -9,7 +9,6 @@ export interface PathMapping {
   targets: string[]
 }
 
-/** The alias rules that apply to files under `directory`. */
 export interface TsPathConfig {
   directory: string
   baseUrl: string | null
@@ -19,14 +18,7 @@ export interface TsPathConfig {
 const CONFIG_FILE = /(?:^|\/)[tj]sconfig\.json$/
 const JS_SOURCE = /\.(?:[cm]?[jt]sx?|vue|svelte|astro)$/i
 
-/**
- * The configs worth loading, most useful first. A config governs the JS/TS
- * files for which it is the nearest config (as TypeScript picks the closest
- * tsconfig), and configs are ranked by how many files they govern, so a large
- * package's own tsconfig is never crowded out by small ones that happen to sit
- * shallower or earlier in the alphabet. A tsconfig.json beats a jsconfig.json
- * in the same folder; ties go to the shallower, then alphabetically first path.
- */
+// Ranked by how many JS/TS files each config governs (the nearest config governs a file, as in TypeScript).
 export function findConfigPaths(snapshot: RepositorySnapshot): string[] {
   const configByDirectory = new Map<string, string>()
   for (const entry of snapshot.entries.values()) {
@@ -58,11 +50,7 @@ export function findConfigPaths(snapshot: RepositorySnapshot): string[] {
     .slice(0, REPOSITORY_LIMITS.maxTsconfigFiles)
 }
 
-/**
- * Reads tsconfig/jsconfig files and the in-repository configs they extend.
- * Package `extends` (e.g. "@tsconfig/node20") are ignored: they live outside
- * the analysed commit.
- */
+// Package `extends` (e.g. "@tsconfig/node20") are ignored: they live outside the analysed commit.
 export async function loadTsPathConfigs(
   snapshot: RepositorySnapshot,
   read: (paths: string[]) => Promise<void>,
@@ -138,7 +126,6 @@ function resolveConfig(
   return { directory, baseUrl, mappings }
 }
 
-/** Candidate repository paths for `specifier`, most specific pattern first. */
 export function applyPathMappings(
   specifier: string,
   mappings: readonly PathMapping[],

@@ -36,11 +36,7 @@ export interface AnalysisOptions {
   onProgress?: (progress: AnalysisProgress) => void
 }
 
-/**
- * One analysis of one public repository at one commit. Ordinary application
- * logic: no HTTP, streaming or persistence concerns. A persistence layer can
- * wrap this call and key results by (owner, repo, commitSha).
- */
+// No HTTP, streaming or storage here, so a cache can wrap this call keyed by (owner, repo, commitSha).
 export async function analyseRepository(
   repositoryUrl: string,
   deps: AnalysisDependencies,
@@ -165,11 +161,7 @@ export async function analyseRepository(
   }
 }
 
-/**
- * One model call, deterministic validation and repair, and at most one narrow
- * model repair when structure is still invalid. Failures are contained to the
- * view so the other view can still be returned.
- */
+// At most one narrow model repair. A failure stays inside this view so the other view can still be returned.
 export async function runView<Wire, Result>(params: {
   view: 'architecture' | 'user-flows'
   calls: ModelCall[]
@@ -224,7 +216,6 @@ export async function runView<Wire, Result>(params: {
 
 const MANIFEST = /(?:^|\/)package\.json$/
 
-/** package.json texts that indicate which UI frameworks are in use. */
 async function readManifests(
   snapshot: RepositorySnapshot,
   store: ReturnType<typeof createSourceStore>,

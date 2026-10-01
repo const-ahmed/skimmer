@@ -5,7 +5,6 @@ import type { TreeEntry } from '@/server/repository/types'
 
 export interface PageEntry {
   path: string
-  /** URL pattern from a file-based router or a code route; null when unknown. */
   route: string | null
   framework: string
   /** Rendered by a route declared in code, so it is a real screen of the app. */
@@ -134,11 +133,7 @@ function eligible(path: string): boolean {
   return !isPeripheralPath(path) && !isGeneratedPath(path) && !isSensitivePath(path)
 }
 
-/**
- * Finds what a human interacts with: page files and their routes, top-level
- * layouts, and URL-addressable endpoints. Null means no user-facing surface
- * was detected (libraries, CLIs, services) and no User Flow call is made.
- */
+// Null means no user-facing surface (libraries, CLIs, services), so no User Flow call is made.
 export function detectUiSurface(
   entries: ReadonlyMap<string, TreeEntry>,
   manifestText: string,
@@ -194,11 +189,6 @@ const IMPORTANT_ROUTE =
 const PERIPHERAL_ROUTE =
   /terms|privacy|legal|cookie|404|500|not-found|error|changelog|blog|docs|licen[cs]e|sitemap|robots|status|health|debug/i
 
-/**
- * Adds pages found through code-defined routes. A page already known from the
- * file layout gains the route and the routed mark; others are added. Null
- * when there is still no page at all.
- */
 export function mergeCodeRoutes(surface: UiSurface, discovery: CodeRouteDiscovery): UiSurface | null {
   const pages = surface.pages.map((page) => ({ ...page }))
   const byPath = new Map(pages.map((page) => [page.path, page]))
@@ -240,12 +230,7 @@ export function isEntryPage(page: PageEntry): boolean {
   return wordsOf(`${page.route ?? ''} ${page.path}`).some((word) => ENTRY_WORDS.has(word))
 }
 
-/**
- * The product area a page belongs to, from where its file lives: the first
- * folder under the nearest pages/views/screens/routes/app/modules directory
- * (route groups like "(auth)" skipped). File location is used rather than the
- * route because code routes are often declared relative to a parent route.
- */
+// From the file location, not the route: code routes are often declared relative to a parent route.
 export function sectionOf(page: PageEntry): string {
   const segments = page.path.split('/')
   const base = segments.findLastIndex(
@@ -256,12 +241,7 @@ export function sectionOf(page: PageEntry): string {
   return [...segments.slice(0, base + 1), area ?? ''].join('/')
 }
 
-/**
- * Picks pages by score while spreading them across product areas: each page
- * already taken from an area costs the next one from it SECTION_PENALTY, and
- * entry pages (sign-in, onboarding…) beyond ENTRY_PAGE_CAP only follow every
- * other page. Ties go to the alphabetically first path.
- */
+// Each page already taken from an area costs the next one SECTION_PENALTY; entry pages beyond ENTRY_PAGE_CAP come last.
 export function pickPages(
   pages: readonly PageEntry[],
   scoreOf: (page: PageEntry, index: number) => number,
@@ -309,10 +289,7 @@ export function rankPages(pages: readonly PageEntry[]): PageEntry[] {
   return pickPages(pages, score, pages.length)
 }
 
-/**
- * Matches a literal URL path from source against discovered endpoint routes.
- * The most specific route wins: static segments beat parameters, as routers do.
- */
+// Static segments beat parameters, as routers do.
 export function matchEndpoint(
   url: string,
   endpoints: UiSurface['endpoints'],

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-/** Whether a media query matches; false during server rendering. */
+// false during server rendering.
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches)
   useEffect(() => {

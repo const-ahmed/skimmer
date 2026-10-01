@@ -8,12 +8,11 @@ export type AnalysisState =
   | { status: 'complete'; progress: AnalysisProgress[]; result: AnalysisResult }
   | { status: 'error'; progress: AnalysisProgress[]; message: string }
 
-/** Runs POST /api/analyse and follows its SSE stream. */
 export function useAnalysis() {
   const [state, setState] = useState<AnalysisState>({ status: 'idle' })
   const controller = useRef<AbortController | null>(null)
 
-  const start = useCallback(async (repositoryUrl: string) => {
+  const start = useCallback(async (repositoryUrl: string, turnstileToken: string) => {
     controller.current?.abort()
     const abort = new AbortController()
     controller.current = abort
@@ -24,7 +23,7 @@ export function useAnalysis() {
       const response = await fetch('/api/analyse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repositoryUrl }),
+        body: JSON.stringify({ repositoryUrl, turnstileToken }),
         signal: abort.signal,
       })
       if (!response.ok) {

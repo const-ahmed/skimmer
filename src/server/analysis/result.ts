@@ -22,7 +22,6 @@ export interface ShownFileSummary {
   complete: boolean
 }
 
-/** What was inspected, so a reader can judge how far the analysis reaches. */
 export interface AnalysisCoverage {
   treeTruncated: boolean
   entriesListed: number

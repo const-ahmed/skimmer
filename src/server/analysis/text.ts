@@ -18,7 +18,6 @@ export function slugify(value: string): string {
   return /^[a-z]/.test(slug) ? slug : slug ? `n-${slug}`.slice(0, 64) : ''
 }
 
-/** Shortens at a word boundary; reports whether anything was cut. */
 export function shorten(value: string, max: number): { text: string; cut: boolean } {
   if (value.length <= max) return { text: value, cut: false }
   const slice = value.slice(0, max - 1)

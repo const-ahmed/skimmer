@@ -10,7 +10,6 @@ import type {
   TreeEntry,
 } from './types'
 
-/** Reads one blob's bytes at the snapshot commit; null when unavailable. */
 export type BlobReader = (
   entry: TreeEntry,
   maxBytes: number,
@@ -29,14 +28,12 @@ interface StoredText {
  */
 export interface SourceStore {
   read(paths: readonly string[]): Promise<void>
-  /** Source with resolved static references. */
   get(path: string): SourceFile | undefined
   /** Text only; for config files read before references can be resolved. */
   getText(path: string): string | undefined
   has(path: string): boolean
   failure(path: string): SkipReason | undefined
   useResolver(resolver: ReferenceResolver): void
-  /** The repository file an import specifier in `fromPath` resolves to, if any. */
   resolveImport(fromPath: string, specifier: string): string | null
   skipped(): SkippedEntry[]
   bytesRead(): number

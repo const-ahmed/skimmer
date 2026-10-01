@@ -8,7 +8,6 @@ export function splitLines(text: string): string[] {
   return lines.map((line) => (line.endsWith('\r') ? line.slice(0, -1) : line))
 }
 
-/** Maps a character offset in `text` to its 1-based line number. */
 export function createLineLocator(text: string): (offset: number) => number {
   const starts = [0]
   for (let index = 0; index < text.length; index++)
@@ -25,7 +24,6 @@ export function createLineLocator(text: string): (offset: number) => number {
   }
 }
 
-/** Sorted, merged ranges from a set of 1-based line numbers. */
 export function rangesFromLines(lineNumbers: Iterable<number>): LineRange[] {
   const sorted = [...new Set(lineNumbers)].sort((a, b) => a - b)
   const ranges: LineRange[] = []
@@ -45,7 +43,6 @@ export function formatRanges(ranges: readonly LineRange[]): string {
     .join(',')
 }
 
-/** Whether every line of `range` lies inside one of `shown`. */
 export function isWithinRanges(
   range: LineRange,
   shown: readonly LineRange[],

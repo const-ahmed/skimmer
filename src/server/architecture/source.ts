@@ -10,7 +10,6 @@ export interface SourceSelectionContext {
   repository: { owner: string; repo: string; commitSha: string }
   entries: ReadonlyMap<string, TreeEntry>
   scope: EvidenceScope
-  /** Static references from every file read. */
   references: readonly StaticReference[]
   nodes: readonly Pick<ArchitectureNode, 'id' | 'primaryPath'>[]
 }

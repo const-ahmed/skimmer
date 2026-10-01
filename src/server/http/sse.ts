@@ -5,10 +5,7 @@ export interface SseChannel {
 
 const HEARTBEAT_MS = 15_000
 
-/**
- * A text/event-stream response plus a channel to write events into. A comment
- * heartbeat keeps long model calls from looking like an idle connection.
- */
+// A comment heartbeat keeps long model calls from looking like an idle connection.
 export function createSseResponse(onCancel?: () => void): {
   response: Response
   channel: SseChannel

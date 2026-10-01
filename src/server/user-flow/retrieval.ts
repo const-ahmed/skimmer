@@ -38,7 +38,6 @@ export interface UserFlowContext {
   files: UserFlowFile[]
 }
 
-/** How strongly a file's text shows what a person does or sees. */
 export function uiSignalScore(text: string): number {
   let score = 0
   for (const signal of USER_FLOW_PROFILE.signals) {
@@ -48,12 +47,7 @@ export function uiSignalScore(text: string): number {
   return score
 }
 
-/**
- * Retrieval for the human journey, separate from the architecture ranking:
- * pages first, then their first-level child components, then only the server
- * endpoints those files visibly call. Nothing is crawled recursively, and
- * URL strings are only matched to repository paths, never requested.
- */
+// Nothing is crawled recursively, and URL strings are matched to repository paths, never requested.
 export async function buildUserFlowContext(
   snapshot: RepositorySnapshot,
   store: SourceStore,
@@ -74,7 +68,6 @@ export async function buildUserFlowContext(
     include(page.path, 'page', page.route ? `page for route ${page.route}` : 'page or view')
   for (const layout of surface.layouts) include(layout, 'layout', 'top-level layout or shell')
 
-  // First-level children only.
   const childCandidates = new Map<string, string[]>()
   for (const page of pages) {
     const candidates = (store.get(page.path)?.references ?? [])
@@ -102,7 +95,6 @@ export async function buildUserFlowContext(
     for (const child of children) include(child.path, 'child', `used by ${page.path}`)
   }
 
-  // Server code needed to understand the visible outcome.
   const handlerCandidates: Array<{ path: string; note: string }> = []
   for (const file of [...files]) {
     const source = store.get(file.path)
@@ -184,10 +176,6 @@ export async function buildUserFlowContext(
   }
 }
 
-/**
- * The pages whose content shows the most interaction, spread across product
- * areas and with sign-in/onboarding pages capped (see pickPages).
- */
 export function selectPages(
   ranked: readonly PageEntry[],
   textOf: (path: string) => string | undefined,

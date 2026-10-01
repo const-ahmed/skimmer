@@ -1,13 +1,7 @@
 import { pathCovers } from '@/server/repository/paths'
 import type { ArchitectureNode } from './schema'
 
-/**
- * The node that owns a repository path: of all nodes whose primaryPath is the
- * path or one of its folders, the deepest. A broad directory node owns only
- * what no more specific node claims. Only nodes with an identical primaryPath
- * can tie; the lexicographically smallest id wins so the result does not
- * depend on the model's node order.
- */
+// The deepest node whose primaryPath contains the path. Identical paths tie-break on the smallest id, so the model's node order does not matter.
 export function ownerOf(
   path: string,
   nodes: readonly Pick<ArchitectureNode, 'id' | 'primaryPath'>[],

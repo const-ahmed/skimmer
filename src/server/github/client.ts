@@ -35,7 +35,7 @@ export function createGitHubClient(options: {
   const apiHeaders = (accept: string): HeadersInit => ({
     Accept: accept,
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'visualise',
+    'User-Agent': 'skimmer',
     ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
   })
 
@@ -98,7 +98,7 @@ export function createGitHubClient(options: {
       const timeout = AbortSignal.timeout(GITHUB_LIMITS.requestTimeoutMs)
       try {
         const response = await doFetch(url, {
-          headers: { 'User-Agent': 'visualise' },
+          headers: { 'User-Agent': 'skimmer' },
           redirect: 'manual',
           signal: AbortSignal.any([signal, timeout]),
         })

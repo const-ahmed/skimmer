@@ -19,17 +19,11 @@ export interface ArchitectureValidationInput {
   scope: EvidenceScope
   /** Static references from every file read, including ones not shown. */
   references: readonly StaticReference[]
-  /** The analysed commit, for primary source links. */
   repository: SourceSelectionContext['repository']
   entries: ReadonlyMap<string, TreeEntry>
 }
 
-/**
- * Turns model output into a valid ArchitectureResult. Problems that can be
- * fixed without changing meaning (formatting, unknown paths, invalid
- * evidence, dangling or duplicate edges) are repaired here and logged.
- * Anything else is returned as issues for one narrow model repair.
- */
+// Meaning-preserving problems are repaired here; anything else goes to one narrow model repair.
 export function finaliseArchitecture(
   wire: ArchitectureWire,
   input: ArchitectureValidationInput,
@@ -45,7 +39,6 @@ export function finaliseArchitecture(
     return text
   }
 
-  // Groups
   const groups: ArchitectureResult['graph']['groups'] = []
   const groupLabels = new Map<string, string>()
   wire.groups.forEach((group, index) => {
@@ -61,7 +54,6 @@ export function finaliseArchitecture(
     groups.push({ id, label, ...(summary ? { summary } : {}) })
   })
 
-  // Nodes
   const nodes: ArchitectureNode[] = []
   const nodeById = new Map<string, ArchitectureNode>()
   wire.nodes.forEach((node, index) => {
@@ -103,7 +95,6 @@ export function finaliseArchitecture(
     nodeById.set(id, built)
   })
 
-  // Edges
   const labelIndex = new Map<string, string | null>()
   for (const node of nodes) {
     const key = slugify(node.label)
@@ -233,11 +224,7 @@ function mergeEvidence(existing: Evidence[], added: readonly Evidence[]): Eviden
   ]
 }
 
-/**
- * The first import whose importing file is owned by the `from` node and whose
- * target is owned by the `to` node. Only this direction: the importing side
- * owns the relationship.
- */
+// Only the importing side owns a relationship, so only that direction is checked.
 export function staticEvidenceFor(
   fromId: string,
   toId: string,

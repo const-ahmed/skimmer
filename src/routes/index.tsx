@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CompletedAnalysis } from '@/components/analysis/analysis-progress'
-import { AnalysisStatus } from '@/components/analysis/analysis-status'
+import { AnalysisStatus, type Verification } from '@/components/analysis/analysis-status'
 import { ArchitectureSummary } from '@/components/analysis/architecture-summary'
 import { ArchitectureView } from '@/components/analysis/architecture-view'
 import { useAnalysis } from '@/components/analysis/use-analysis'
@@ -17,13 +17,37 @@ function Home() {
   const [url, setUrl] = useState('')
   const [view, setView] = useState<ResultView>('architecture')
   const { state, start } = useAnalysis()
+  const [verification, setVerification] = useState<Verification | null>(null)
+  const attempts = useRef(0)
+  const submitted = useRef('')
   const running = state.status === 'running'
+  const busy = running || verification !== null
   const complete = state.status === 'complete' ? state : null
   const result = complete?.result ?? null
 
   useEffect(() => setView('architecture'), [result])
 
-  const status = <AnalysisStatus running={running} progress={state.status === 'running' ? state.progress : []} url={url} />
+  const verify = () => setVerification({ attempt: ++attempts.current, error: null })
+  const analyse = (next: string) => {
+    submitted.current = next
+    verify()
+  }
+
+  const status = (
+    <AnalysisStatus
+      running={running}
+      progress={state.status === 'running' ? state.progress : []}
+      url={url}
+      verification={verification}
+      onToken={(token) => {
+        setVerification(null)
+        void start(submitted.current, token)
+      }}
+      onVerificationError={(message) => setVerification((current) => current && { ...current, error: message })}
+      onRetry={verify}
+      onCancel={() => setVerification(null)}
+    />
+  )
 
   if (!complete || !result)
     return (
@@ -31,8 +55,8 @@ function Home() {
         <StartScreen
           url={url}
           onUrlChange={setUrl}
-          onAnalyse={(next) => void start(next)}
-          running={running}
+          onAnalyse={analyse}
+          running={busy}
           error={state.status === 'error' ? state.message : null}
         />
         {status}
@@ -47,8 +71,8 @@ function Home() {
         onViewChange={setView}
         url={url}
         onUrlChange={setUrl}
-        onAnalyse={(next) => void start(next)}
-        running={running}
+        onAnalyse={analyse}
+        running={busy}
         result={result}
       />
 
@@ -90,6 +114,7 @@ function Home() {
           </div>
         )}
       </main>
+      {status}
     </div>
   )
 }

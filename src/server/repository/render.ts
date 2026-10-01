@@ -23,7 +23,6 @@ export function renderFileBlock(
   return `<repository_file ${attributes}>\n${renderNumberedLines(file.lines, ranges)}\n</repository_file>`
 }
 
-/** The leading README lines that fit `budget` characters. */
 export function readmeRanges(lines: readonly string[], budget: number): LineRange[] {
   let used = 0
   let end = 0

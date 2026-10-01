@@ -3,7 +3,6 @@ import { dirname, isArchitectureSource, isGeneratedPath, isPeripheralPath } from
 import { scoreArchitecturePath } from './ranking'
 import type { TreeEntry } from './types'
 
-/** A repository area (see createAreaIndex) and its place in the tree budget. */
 interface Area {
   key: string
   weight: number
@@ -15,9 +14,7 @@ interface Area {
 
 export interface TreeSelection {
   paths: string[]
-  /** Directories among `paths`, rendered with a trailing slash. */
   directories: Set<string>
-  /** File counts for area roots, rendered after the path. */
   areaFileCounts: Map<string, number>
   totalPaths: number
 }
@@ -25,19 +22,7 @@ export interface TreeSelection {
 const lineCost = (path: string, directory: boolean, count?: number) =>
   path.length + (directory ? 1 : 0) + (count === undefined ? 0 : String(count).length + 9) + 1
 
-/**
- * Chooses which tree paths to show within `budget` characters.
- *
- * When everything fits, everything is shown. Otherwise the repository is split
- * into areas (workspace packages, else top-level directories). Each area's
- * root line is shown first. The rest of the budget is shared by weight
- * sqrt(runtime source files in the area), so a huge package gets more room
- * than a small one but cannot crowd the others out; areas with no runtime
- * source (docs, tooling, assets) only use what is left at the end. Within an
- * area, structure comes before leaves: shallow directories first (larger
- * subtrees first), then the files ranked for reading, deeper directories, and
- * finally other source files by their ranking score.
- */
+// Areas share the budget by sqrt(runtime source files), so a huge package gets more room without crowding out the rest. Within an area, structure comes before leaves.
 export function selectTreePaths(
   entries: ReadonlyMap<string, TreeEntry>,
   ranked: readonly string[],
@@ -52,7 +37,6 @@ export function selectTreePaths(
 
   const { areaOf, weightOf } = createAreaIndex(entries)
 
-  // Runtime source files under every directory, to rank subtrees by size.
   const sourceCounts = new Map<string, number>()
   const fileCounts = new Map<string, number>()
   for (const entry of all) {

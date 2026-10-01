@@ -1,16 +1,27 @@
-import { Check, Loader2 } from 'lucide-react'
+import { Check, CircleAlert, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { AnalysisProgress } from '@/server/analysis/result'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
+import { TurnstileCheck } from './turnstile-check'
 
 type View = 'architecture' | 'user-flows'
-type StepState = 'done' | 'current' | 'pending'
+type StepState = 'done' | 'current' | 'pending' | 'failed'
+
+export interface Verification {
+  /** Increments per attempt, so each retry mounts a fresh widget. */
+  attempt: number
+  error: string | null
+}
 
 const VIEW_LABELS: Record<View, string> = { architecture: 'Architecture', 'user-flows': 'User flows' }
 
 // Every state comes from a progress event already received; nothing is estimated.
-function stages(progress: AnalysisProgress[]): Array<{ label: string; state: StepState; note?: string }> {
+function stages(
+  progress: AnalysisProgress[],
+  verification: Verification | null,
+): Array<{ label: string; state: StepState; note?: string }> {
   const seen = (stage: AnalysisProgress['stage']) => progress.some((item) => item.stage === stage)
   const analysing = progress.find((item) => item.stage === 'analysing')
   const views: View[] = analysing?.stage === 'analysing' ? analysing.views : ['architecture', 'user-flows']
@@ -27,11 +38,18 @@ function stages(progress: AnalysisProgress[]): Array<{ label: string; state: Ste
       note: repairing(view) && !complete(view) ? 'Repairing output' : undefined,
     })),
   ]
-  return list.map(({ label, done, started, ...rest }) => ({
-    label,
-    state: done ? 'done' : started ? 'current' : 'pending',
-    ...rest,
-  }))
+  const check = {
+    label: 'Checking you’re human',
+    state: (verification ? (verification.error ? 'failed' : 'current') : 'done') as StepState,
+  }
+  return [
+    check,
+    ...list.map(({ label, done, started, ...rest }) => ({
+      label,
+      state: (verification ? 'pending' : done ? 'done' : started ? 'current' : 'pending') as StepState,
+      ...rest,
+    })),
+  ]
 }
 
 function useElapsedSeconds(running: boolean): number {
@@ -63,10 +81,20 @@ export function AnalysisStatus({
   running,
   progress,
   url,
+  verification,
+  onToken,
+  onVerificationError,
+  onRetry,
+  onCancel,
 }: {
   running: boolean
   progress: AnalysisProgress[]
   url: string
+  verification: Verification | null
+  onToken: (token: string) => void
+  onVerificationError: (message: string) => void
+  onRetry: () => void
+  onCancel: () => void
 }) {
   const elapsed = useElapsedSeconds(running)
   const resolved = progress.find((item) => item.stage === 'repository-resolved')
@@ -76,7 +104,7 @@ export function AnalysisStatus({
       : url.replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/\/$/, '')
 
   return (
-    <Dialog open={running}>
+    <Dialog open={running || verification !== null}>
       <DialogContent
         showCloseButton={false}
         onEscapeKeyDown={(event) => event.preventDefault()}
@@ -98,11 +126,13 @@ export function AnalysisStatus({
         </DialogHeader>
 
         <ol className="space-y-2.5 border-t border-border pt-4" aria-live="polite">
-          {stages(progress).map((step) => (
+          {stages(progress, verification).map((step) => (
             <li key={step.label} className="flex items-center gap-3 text-sm">
               <span aria-hidden className="flex size-5 shrink-0 items-center justify-center">
                 {step.state === 'done' ? (
                   <Check className="size-4 text-brand" />
+                ) : step.state === 'failed' ? (
+                  <CircleAlert className="size-4 text-destructive" />
                 ) : step.state === 'current' ? (
                   <Loader2 className="size-4 text-brand motion-safe:animate-spin" />
                 ) : (
@@ -112,13 +142,36 @@ export function AnalysisStatus({
               <span className={cn(step.state === 'pending' && 'text-muted-foreground', step.state === 'current' && 'font-medium')}>
                 {step.label}
                 <span className="sr-only">
-                  {step.state === 'done' ? ' (done)' : step.state === 'current' ? ' (in progress)' : ' (waiting)'}
+                  {step.state === 'done'
+                    ? ' (done)'
+                    : step.state === 'failed'
+                      ? ' (failed)'
+                      : step.state === 'current'
+                        ? ' (in progress)'
+                        : ' (waiting)'}
                 </span>
               </span>
               {step.note && <span className="text-xs text-muted-foreground">{step.note}</span>}
             </li>
           ))}
         </ol>
+
+        {verification &&
+          (verification.error ? (
+            <div role="alert" className="space-y-3 border-t border-border pt-4">
+              <p className="text-sm">{verification.error}</p>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="ghost" className="shadow-none" onClick={onCancel}>
+                  Cancel
+                </Button>
+                <Button type="button" className="shadow-none" onClick={onRetry}>
+                  Try again
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <TurnstileCheck key={verification.attempt} onToken={onToken} onError={onVerificationError} />
+          ))}
 
         <p className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
           <span>Large repositories can take a minute or two.</span>

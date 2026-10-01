@@ -8,10 +8,10 @@ below. Those portions are covered by GitDiagram's MIT licence.
 
 | Skimmer | GitDiagram source |
 |---|---|
-| `src/shared/github-url.ts`, `src/shared/github-url.test.ts` | `src/features/diagram/github-url.ts` and its tests |
+| `src/shared/github-url.ts` | `src/features/diagram/github-url.ts` |
 | `src/server/repository/paths.ts` | path filters in `src/server/generate/github.ts` and `repository-context.ts` |
 | `src/server/repository/ranking.ts` | `score` and `rankSourcePaths` in `src/server/generate/repository-context.ts` |
-| `src/server/repository/references.ts`, `references.test.ts` | `src/server/generate/source-references.ts` and its tests |
+| `src/server/repository/references.ts` | `src/server/generate/source-references.ts` |
 | `src/server/repository/excerpt.ts` | `src/server/generate/source-excerpt.ts` |
 | `src/server/architecture/retrieval.ts` | two-round reading, excerpt choice, core modules and SOURCE INDEX in `src/server/generate/source-context.ts` |
 | `src/server/github/snapshot.ts` | truncated-tree handling in `src/server/generate/github.ts` |

@@ -6,7 +6,6 @@ import { USER_FLOW_SYSTEM_PROMPT, userFlowUserPrompt } from '@/server/user-flow/
 import { userFlowWireSchema, type UserFlowWire } from '@/server/user-flow/schema'
 import type { ClaudeClient, ModelResponse } from './claude'
 
-/** What the analysis engine needs from a model; nothing provider-specific. */
 export interface AnalysisModel {
   analyseArchitecture(context: string, signal: AbortSignal): Promise<ModelResponse<ArchitectureWire>>
   analyseUserFlows(context: string, signal: AbortSignal): Promise<ModelResponse<UserFlowWire>>

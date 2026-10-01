@@ -1,6 +1,5 @@
 import type { LineRange } from '@/server/repository/types'
 
-/** A file as one analysis showed it to the model. */
 export interface ShownFile {
   path: string
   lineCount: number

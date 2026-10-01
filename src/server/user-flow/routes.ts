@@ -2,7 +2,6 @@ import { dirname, isGeneratedPath, isPeripheralPath, isSensitivePath, pathCovers
 import type { SourceStore } from '@/server/repository/source-store'
 import type { RepositorySnapshot } from '@/server/repository/types'
 
-/** A route declared in code and the page component file it renders. */
 export interface CodeRoute {
   /** URL pattern when the path is a literal or a resolvable constant; null otherwise. */
   route: string | null
@@ -29,13 +28,7 @@ const NOT_APP_CODE = /(?:^|\/)(?:testing|__stories__|__mocks__|__fixtures__)\//
 const ROUTE_MARKER =
   /<Route\b|create(?:Browser|Hash|Memory)Router\s*\(|useRoutes\s*\(|RouterModule\.for(?:Root|Child)|createRouter\s*\(|\b[rR]outes\s*(?::\s*[\w<>[\]]+\s*)?[:=]\s*\[|RouteObject/
 
-/**
- * Finds routes declared in code (React Router, Vue Router, Angular) by string
- * matching the router files, mapping each to the page component it renders.
- * Only runs when a router package is a dependency. Paths that are constants
- * (`AppPath.Home`) are looked up in the file that defines them. Nothing is
- * executed and nothing is guessed: unresolvable parts stay null.
- */
+// String matching only: nothing is executed, and unresolvable parts stay null.
 export async function discoverCodeRoutes(
   snapshot: RepositorySnapshot,
   store: SourceStore,
@@ -129,7 +122,6 @@ function routerScore(path: string): number {
   return score
 }
 
-/** Local names bound to module specifiers: static imports and lazy() imports. */
 export function importMap(text: string): Map<string, string> {
   const map = new Map<string, string>()
   for (const match of text.matchAll(/import\s+([\w$]+)?\s*,?\s*(?:\{([^}]*)\})?\s*from\s*['"]([^'"\n]+)['"]/g)) {
@@ -144,12 +136,6 @@ export function importMap(text: string): Map<string, string> {
   return map
 }
 
-/**
- * Route entries in a router file: JSX `<Route path=... element=...>` and route
- * objects `{ path: ..., element | component | Component | loadComponent }`.
- * `component` lists the JSX components or identifiers found in the entry, in
- * order; `specifier` is a direct lazy import when the entry has one.
- */
 export function routeDeclarations(text: string): Array<{ path: string; component: string[]; specifier: string | null }> {
   const found: Array<{ path: string; component: string[]; specifier: string | null }> = []
   const pathValue = (raw: string) => raw.replace(/^\{|\}$/g, '').trim().replace(/^['"`]|['"`]$/g, '')

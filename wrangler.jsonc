@@ -24,5 +24,9 @@
       },
     },
   ],
-  // Secrets (wrangler secret put; locally the git-ignored .env file): GITHUB_API_TOKEN, CF_AIG_TOKEN
+  // Names only. Set values with `wrangler secret put`; locally they come from the git-ignored .env.
+  // Local dev exposes only the secrets listed here, so every secret the Worker reads must be listed.
+  "secrets": {
+    "required": ["GITHUB_API_TOKEN", "CF_AIG_TOKEN", "TURNSTILE_SECRET"],
+  },
 }
